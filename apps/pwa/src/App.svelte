@@ -47,7 +47,7 @@
     else delete root.dataset.contrast;
     title = s.customTitle || DEFAULT_TITLE;
     setTitle(title);
-    void applyTitle(s.customTitle);
+    applyTitle(s.customTitle, isIos());
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', getComputedStyle(root).getPropertyValue('--bg').trim());
   }
 

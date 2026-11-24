@@ -63,11 +63,8 @@ test('a title in the URL renames the game and stays for the home screen', async 
   await page.goto('/'); // without the parameter the stored title comes back, also into the URL
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Wörtchen');
   await expect.poll(() => page.evaluate(() => location.hash)).toBe('#title=W%C3%B6rtchen');
-  const manifest = await page.evaluate(async () => {
-    const href = document.querySelector<HTMLLinkElement>('link[rel="manifest"]')!.href;
-    return { href, ...((await (await fetch(href)).json()) as { name: string; start_url: string }) };
-  });
-  expect(manifest).toMatchObject({ href: expect.stringMatching(/^blob:/), name: 'Wörtchen', start_url: expect.stringMatching(/#title=W%C3%B6rtchen$/) });
+  // Chromium (Android): the manifest stays, so the app remains installable.
+  await expect(page.locator('link[rel="manifest"]')).toHaveAttribute('href', /manifest\.webmanifest$/);
 
   await page.goto('/#title=');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Wortl');
