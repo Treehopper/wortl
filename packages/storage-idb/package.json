@@ -1,0 +1,2 @@
+{ "name": "@wortl/storage-idb", "version": "0.1.0", "private": true, "type": "module", "exports": { ".": "./src/index.ts" },
+  "dependencies": { "@wortl/core": "*", "dexie": "^4.0.10" } }

@@ -1,0 +1,23 @@
+# Words that pass the automatic rules but make poor answers. One per line, game spelling (ß → ss).
+# They stay valid guesses. Appending here changes the daily order, so do it before release (§6 rule 3).
+
+# vulgar, sexual, slurs
+arsch dildo fotze nutte huren neger titte tunte lesbe porno penis hoden kacke möpse orgie dirne luder
+türke inder jüdin russe brite memme
+
+# places and names
+asien athen burma chile china delhi devon donau dover essex haiti kabul kairo kenia kongo korea malmö
+nizza paris rhein seoul sofia sudan texas tibet tokio troja jemen japan polen olymp hades jaffa venus
+pluto santa ethan hagen horst bambi gallo weber islam koran bibel alpen milan
+
+# English
+after board break champ clean crack crash fight first flash happy lunch match power prime queen saint
+smart sound spike strip stunt swing touch tough tower trust shirt stick freak flyer order media vista
+
+# conjugated forms, plurals and other non-lemmas
+andre beeil blies birgt bläst fährt fängt gräbt hilft liest lässt läuft magst musst nimmt sieht säuft
+trägt wirft wirst kämen würde wären wäret waren solle unsre draus derer dritt viert zweit giess frass
+floss holla husch intus jeher einen jungs ecken eiern arten fugen hexen namen werte rings
+gänse bände böden gäste güter hände häfen köche köpfe körbe läden löhne läuse mäuse nägel pläne räder
+röcke söhne säcke särge sätze töpfe türme tänze väter vögel wände wölfe zähne zäune äpfel ärzte flöhe
+fäden mühen viren

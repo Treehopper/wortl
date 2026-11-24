@@ -1,0 +1,97 @@
+:root {
+  --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-tile: ui-rounded, 'SF Pro Rounded', system-ui, -apple-system, sans-serif;
+  --font-title: ui-serif, 'New York', Georgia, serif;
+
+  --bg: #f6f1e7;
+  --sheet-bg: #fffaf0;
+  --text: #1d2a2f;
+  --text-muted: #5f6b6e;
+  --tile-bg: #fffaf0;
+  --tile-border: #ddd4c2;
+  --tile-border-filled: #8a8170;
+  --key-bg: #e6dfcf;
+  --correct: #2a9d8f;
+  --present: #e0a030;
+  --present-text: #1d2a2f;
+  --absent: #6f777b;
+  --mark-text: #ffffff;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #14191c;
+    --sheet-bg: #1e2529;
+    --text: #eef1ee;
+    --text-muted: #9aa5a8;
+    --tile-bg: #14191c;
+    --tile-border: #343d42;
+    --tile-border-filled: #6c777c;
+    --key-bg: #3a4348;
+    --correct: #2a9d8f;
+    --present: #d39a2c;
+    --absent: #353d41;
+    color-scheme: dark;
+  }
+}
+:root[data-theme='dark'] {
+  --bg: #14191c;
+  --sheet-bg: #1e2529;
+  --text: #eef1ee;
+  --text-muted: #9aa5a8;
+  --tile-bg: #14191c;
+  --tile-border: #343d42;
+  --tile-border-filled: #6c777c;
+  --key-bg: #3a4348;
+  --correct: #2a9d8f;
+  --present: #d39a2c;
+  --absent: #353d41;
+  color-scheme: dark;
+}
+
+/* High contrast (B4): orange/blue, distinguishable with the common colour vision deficiencies. */
+:root[data-contrast='high'] {
+  --correct: #f5793a;
+  --present: #85c0f9;
+  --present-text: #10202c;
+}
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+}
+body { min-height: 100dvh; }
+button { cursor: pointer; font-family: inherit; }
+button:focus-visible, select:focus-visible, input:focus-visible, label:focus-within {
+  outline: 3px solid var(--correct);
+  outline-offset: 2px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 20px;
+  font: 700 1rem var(--font-ui);
+  cursor: pointer;
+}
+.btn.primary { background: var(--correct); color: var(--mark-text); }
+.btn.secondary { background: var(--key-bg); color: var(--text); }
+
+.confetti {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 100;
+}

@@ -1,0 +1,27 @@
+{
+  "name": "wortl",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w apps/pwa",
+    "build": "npm run build -w apps/pwa",
+    "preview": "npm run preview -w apps/pwa",
+    "test": "vitest run",
+    "test:e2e": "npm run test:e2e -w apps/pwa",
+    "typecheck": "tsc -p packages/core && tsc -p packages/storage-idb && tsc -p packages/words && npm run check -w apps/pwa",
+    "lint": "eslint .",
+    "words": "node tools/build-words/build.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "eslint": "^10.15.0",
+    "fake-indexeddb": "^6.2.8",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.73.0",
+    "vitest": "^5.1.1"
+  }
+}
