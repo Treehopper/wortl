@@ -21,7 +21,7 @@ export interface Game {
   finishedAt?: Timestamp;
 }
 
-export type UiLanguage = 'device' | 'en' | 'de';
+export type UiLanguage = 'de' | 'en';
 /** `friendly` is the default light theme; `device`, `light` and `dark` are the paper theme. */
 export type Theme = 'friendly' | 'device' | 'light' | 'dark';
 
@@ -37,7 +37,7 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  uiLanguage: 'device',
+  uiLanguage: 'de',
   theme: 'friendly',
   hardMode: false,
   highContrast: false,

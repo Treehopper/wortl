@@ -68,7 +68,6 @@ export const de: Record<string, string> = {
   'Orange and blue for the hints, easier to tell apart with colour vision deficiency.':
     'Orange und Blau für die Hinweise – leichter zu unterscheiden bei Farbsehschwäche.',
   'Theme': 'Darstellung',
-  'Like the device': 'Wie das Gerät',
   'Friendly': 'Freundlich',
   'Paper, like the device': 'Papier, wie das Gerät',
   'Paper, light': 'Papier, hell',

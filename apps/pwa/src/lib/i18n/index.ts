@@ -1,16 +1,10 @@
 // App language (README §8.4). Texts are keyed by their English wording; German lives in de/.
-import type { UiLanguage } from '@wortl/core';
 import { de } from './de/index.js';
 
-export type Lang = 'en' | 'de';
+export type Lang = 'de' | 'en';
 type Params = Record<string, string | number>;
 
-let lang: Lang = 'en';
-
-export function resolveLanguage(setting: UiLanguage, deviceLanguages: readonly string[] = navigator.languages): Lang {
-  if (setting !== 'device') return setting;
-  return deviceLanguages[0]?.toLowerCase().startsWith('de') ? 'de' : 'en';
-}
+let lang: Lang = 'de';
 
 export function setLanguage(l: Lang): void {
   lang = l;

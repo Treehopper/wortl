@@ -7,7 +7,9 @@ export class SettingsService {
   constructor(private readonly p: Ports) {}
 
   async get(): Promise<Settings> {
-    return { ...DEFAULT_SETTINGS, ...(await this.p.meta.get<Partial<Settings>>(KEY)) };
+    const s = { ...DEFAULT_SETTINGS, ...(await this.p.meta.get<Partial<Settings>>(KEY)) };
+    if ((s.uiLanguage as string) === 'device') s.uiLanguage = 'de'; // stored before German became the app language
+    return s;
   }
 
   update(patch: Partial<Settings>): Promise<Settings> {

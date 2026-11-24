@@ -60,9 +60,8 @@
     <label class="setting">
       <span class="label">{t('App language')}</span>
       <select value={settings.uiLanguage} onchange={(e) => onchange({ uiLanguage: e.currentTarget.value as Settings['uiLanguage'] })}>
-        <option value="device">{t('Like the device')}</option>
-        <option value="en">English</option>
         <option value="de">Deutsch</option>
+        <option value="en">English</option>
       </select>
     </label>
   </section>

@@ -98,6 +98,14 @@ describe('share (B2)', () => {
   });
 });
 
+describe('settings', () => {
+  it('uses German, also for the former "like the device" value', async () => {
+    expect((await app.settings.get()).uiLanguage).toBe('de');
+    await ports.meta.set('settings', { uiLanguage: 'device' });
+    expect((await app.settings.get()).uiLanguage).toBe('de');
+  });
+});
+
 describe('backup (C3)', () => {
   it('round-trips games and settings', async () => {
     await app.settings.update({ theme: 'dark' });

@@ -9,7 +9,7 @@
   import SettingsSheet from './lib/components/SettingsSheet.svelte';
   import StatsSheet from './lib/components/StatsSheet.svelte';
   import { confetti } from './lib/confetti.js';
-  import { msg, resolveLanguage, setLanguage, t } from './lib/i18n/index.js';
+  import { msg, setLanguage, t } from './lib/i18n/index.js';
 
   const TILE_DELAY = 260;
   const FLIP = 520;
@@ -43,9 +43,8 @@
   );
 
   function applySettings(s: Settings) {
-    const lang = resolveLanguage(s.uiLanguage);
-    setLanguage(lang);
-    langKey = lang;
+    setLanguage(s.uiLanguage);
+    langKey = s.uiLanguage;
     const root = document.documentElement;
     root.dataset.theme = s.theme;
     if (s.highContrast) root.dataset.contrast = 'high';

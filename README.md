@@ -80,7 +80,7 @@ IDs are referenced in the design. "Must" = v1, "Should" = v1 if cheap, "Could" =
 - In Safari on iOS (not installed) a dismissible hint explains *Teilen → Zum Home-Bildschirm*; on Android the browser's install prompt is offered as a button.
 - *How to play* opens once on first start and from the (?) button.
 - Import validates the file, asks before replacing everything, and replaces all games and settings in one transaction.
-- Settings › Theme: *Freundlich* (default, light), or the paper theme: *wie das Gerät*, *hell*, *dunkel*. Settings › App language: *Wie das Gerät* (default), *English*, *Deutsch*.
+- Settings › Theme: *Freundlich* (default, light), or the paper theme: *wie das Gerät*, *hell*, *dunkel*. Settings › App language: *Deutsch* (default) or *English*.
 
 ---
 
@@ -186,7 +186,7 @@ interface Game {
 }
 
 interface Settings {
-  uiLanguage: 'device' | 'en' | 'de';  theme: 'friendly' | 'device' | 'light' | 'dark';  // device/light/dark = paper
+  uiLanguage: 'de' | 'en';  theme: 'friendly' | 'device' | 'light' | 'dark';  // device/light/dark = paper
   hardMode: boolean;  highContrast: boolean;  seenHelp: boolean;  installHintDismissed: boolean;
 }
 ```
@@ -279,7 +279,7 @@ Sheets (native `<dialog>`, sliding up from the bottom): *So geht's* (rules with 
 Settings that are hard to guess from their name (hard mode, high-contrast colours) have a small (i) after the name. A tap shows two or three sentences below the setting; another tap hides them. The (i) never toggles the setting.
 
 ### 8.3 App language
-English and German (`apps/pwa/src/lib/i18n`). Settings › App language: *Wie das Gerät* (default; German when the device's first language is German, else English), *English*, *Deutsch*.
+German, with English as an option (`apps/pwa/src/lib/i18n`). Settings › App language: *Deutsch* (default, whatever the device language) or *English*. A stored `device` value from earlier versions reads as German.
 
 - Texts are keyed by their English wording: `t('Not in the word list')`, `t('Letter {n} must be {letter}', { n, letter })`. Texts used indirectly are marked with `msg('…')`. A missing German text shows the English one.
 - German lives in `i18n/de/index.ts`; informal *du*. A unit test fails for any `t()`/`msg()` text without German, for German that loses a `{placeholder}`, and for German texts nothing uses.
