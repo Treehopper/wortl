@@ -1,7 +1,41 @@
 import { svelte } from '@sveltejs/vite-plugin-svelte';
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import pkg from './package.json' with { type: 'json' };
+
+/**
+ * Undocumented `#title=…` (src/lib/title.ts): on iOS, while a title is in the URL, the page has no manifest.
+ * Safari reads the manifest as the page loads, and with one it names the home-screen app after the manifest and
+ * starts it at the manifest's start_url, losing the title. Without one it uses the current URL and
+ * apple-mobile-web-app-title. So the manifest link is added by a script in <head>, before Safari looks.
+ */
+function manifestUnlessTitledOnIos(): Plugin {
+  return {
+    name: 'wortl:manifest-unless-titled-on-ios',
+    enforce: 'post',
+    // In generateBundle, because vite-plugin-pwa adds the link after the HTML transforms; before the service
+    // worker is generated, so it precaches this HTML.
+    generateBundle(_, bundle) {
+      const page = bundle['index.html'];
+      if (page?.type !== 'asset' || typeof page.source !== 'string') return;
+      page.source = page.source.replace(/<link rel="manifest" href="([^"]+)">/, (_, href: string) => `<script>
+    (function () {
+      var title = (new URLSearchParams(location.hash.slice(1)).get('title') || '').trim().slice(0, 30);
+      var ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      if (title) {
+        document.title = title;
+        document.querySelector('meta[name="apple-mobile-web-app-title"]').setAttribute('content', title);
+        if (ios) return;
+      }
+      var link = document.createElement('link');
+      link.rel = 'manifest';
+      link.href = ${JSON.stringify(href)};
+      document.head.appendChild(link);
+    })();
+  </script>`);
+    },
+  };
+}
 
 export default defineConfig({
   plugins: [
@@ -29,6 +63,7 @@ export default defineConfig({
       },
       workbox: { globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest}'] },
     }),
+    manifestUnlessTitledOnIos(),
   ],
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   // Set by the Pages workflow (/wortl/); relative otherwise, so any sub-path works.
