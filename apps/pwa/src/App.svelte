@@ -10,7 +10,7 @@
   import StatsSheet from './lib/components/StatsSheet.svelte';
   import { confetti } from './lib/confetti.js';
   import { msg, setTitle, t } from './lib/i18n/index.js';
-  import { applyTitle, DEFAULT_TITLE, titleFromUrl } from './lib/title.js';
+  import { applyUrlSettings, DEFAULT_TITLE, settingsFromUrl } from './lib/url-settings.js';
 
   const TILE_DELAY = 260;
   const FLIP = 520;
@@ -47,15 +47,15 @@
     else delete root.dataset.contrast;
     title = s.customTitle || DEFAULT_TITLE;
     setTitle(title);
-    applyTitle(s.customTitle, isIos());
+    applyUrlSettings(s, isIos());
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', getComputedStyle(root).getPropertyValue('--bg').trim());
   }
 
-  /** Undocumented: `#title=…` in the URL renames the game (lib/title.ts); `#title=` restores "Wortl". */
-  async function applyTitleFromUrl() {
-    const customTitle = titleFromUrl();
-    if (customTitle !== undefined && customTitle !== (settings?.customTitle ?? '')) {
-      settings = await app.settings.update({ customTitle });
+  /** Undocumented: `#title=…` and `#theme=…` in the URL (lib/url-settings.ts); `#title=` restores "Wortl". */
+  async function applySettingsFromUrl() {
+    const fromUrl = settingsFromUrl();
+    if (Object.entries(fromUrl).some(([k, v]) => v !== (settings?.[k as keyof Settings] ?? ''))) {
+      settings = await app.settings.update(fromUrl);
       applySettings(settings);
     }
   }
@@ -208,7 +208,7 @@
   onMount(() => {
     void (async () => {
       settings = await app.settings.get();
-      await applyTitleFromUrl(); // before applySettings writes the stored title into the URL
+      await applySettingsFromUrl(); // before applySettings writes the stored ones into the URL
       applySettings(settings);
       show(await app.games.daily());
       if (!settings.seenHelp) {
@@ -223,7 +223,7 @@
     };
     addEventListener('beforeinstallprompt', onPrompt);
     document.addEventListener('visibilitychange', onVisible);
-    const onHash = () => void applyTitleFromUrl();
+    const onHash = () => void applySettingsFromUrl();
     addEventListener('hashchange', onHash);
     return () => {
       removeEventListener('hashchange', onHash);

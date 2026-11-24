@@ -70,3 +70,19 @@ test('a title in the URL renames the game and stays for the home screen', async 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Wortl');
   await expect.poll(() => page.evaluate(() => location.hash)).toBe('');
 });
+
+test('a theme in the URL is applied, and a chosen theme goes into the URL', async ({ page }) => {
+  await page.goto('/#theme=dark');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  await page.getByRole('combobox').selectOption('light');
+  await expect.poll(() => page.evaluate(() => location.hash)).toBe('#theme=light');
+
+  await page.goto('/#title=Wörtchen'); // the stored theme joins the title
+  await expect.poll(() => page.evaluate(() => location.hash)).toBe('#title=W%C3%B6rtchen&theme=light');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+
+  await page.goto('/#theme=friendly'); // the default stays out of the URL
+  await expect.poll(() => page.evaluate(() => location.hash)).toBe('#title=W%C3%B6rtchen');
+});
