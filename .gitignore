@@ -5,5 +5,3 @@ tools/build-words/.cache
 test-results
 playwright-report
 .DS_Store
-gitconfig
-README_epublearner.md
