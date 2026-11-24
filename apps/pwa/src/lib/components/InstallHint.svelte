@@ -12,9 +12,9 @@
 <div class="hint" role="note">
   <p>
     {#if ios}
-      {t('Install Wördl: tap Share, then “Add to Home Screen”. Your streak is kept safely there.')}
+      {t('Install Wortl: tap Share, then “Add to Home Screen”. Your streak is kept safely there.')}
     {:else}
-      {t('Install Wördl on your home screen to play offline and keep your streak safe.')}
+      {t('Install Wortl on your home screen to play offline and keep your streak safe.')}
     {/if}
   </p>
   {#if onInstall}

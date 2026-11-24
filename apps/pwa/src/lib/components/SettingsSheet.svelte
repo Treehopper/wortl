@@ -44,15 +44,16 @@
       <input type="checkbox" role="switch" checked={settings.highContrast} onchange={(e) => onchange({ highContrast: e.currentTarget.checked })} />
     </div>
     {#if info === 'contrast'}
-      <p class="explain">{t('Orange and blue instead of green and yellow, easier to tell apart with colour vision deficiency.')}</p>
+      <p class="explain">{t('Orange and blue for the hints, easier to tell apart with colour vision deficiency.')}</p>
     {/if}
 
     <label class="setting">
       <span class="label">{t('Theme')}</span>
       <select value={settings.theme} onchange={(e) => onchange({ theme: e.currentTarget.value as Settings['theme'] })}>
-        <option value="device">{t('Like the device')}</option>
-        <option value="light">{t('Light')}</option>
-        <option value="dark">{t('Dark')}</option>
+        <option value="friendly">{t('Friendly')}</option>
+        <option value="device">{t('Paper, like the device')}</option>
+        <option value="light">{t('Paper, light')}</option>
+        <option value="dark">{t('Paper, dark')}</option>
       </select>
     </label>
 
@@ -93,7 +94,7 @@
         <li><a href={s.url} target="_blank" rel="noreferrer">{s.name}</a> ({s.licence})</li>
       {/each}
     </ul>
-    <p class="muted">Wördl {__APP_VERSION__}</p>
+    <p class="muted">Wortl {__APP_VERSION__}</p>
   </section>
 </Sheet>
 

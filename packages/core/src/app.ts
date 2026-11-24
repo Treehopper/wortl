@@ -43,8 +43,9 @@ export function createApp(p: Ports): WortlApp {
       async share(id, url) {
         const game = await p.games.get(id);
         if (!game) throw new Error(`unknown game ${id}`);
-        const { highContrast } = await settings.get();
-        return shareText(game, { highContrast, ...(url !== undefined && { url }) });
+        const s = await settings.get();
+        const palette = s.highContrast ? 'highContrast' : s.theme === 'friendly' ? 'friendly' : 'paper';
+        return shareText(game, { palette, title: s.customTitle, ...(url !== undefined && { url }) });
       },
     },
     stats: {
@@ -79,11 +80,11 @@ export function createApp(p: Ports): WortlApp {
 function parseBackup(data: unknown): BackupV1 {
   const b = data as Partial<BackupV1> | null;
   if (b?.format !== 'wortl-backup' || b.version !== 1 || !Array.isArray(b.games) || typeof b.meta !== 'object') {
-    throw new Error('Not a Wördl backup file');
+    throw new Error('Not a Wortl backup file');
   }
   for (const g of b.games) {
     if (typeof g?.id !== 'string' || typeof g.solution !== 'string' || !Array.isArray(g.guesses)) {
-      throw new Error('Not a Wördl backup file');
+      throw new Error('Not a Wortl backup file');
     }
   }
   return b as BackupV1;

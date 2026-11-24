@@ -65,12 +65,14 @@ export const de: Record<string, string> = {
   'A change applies from the next game, because the current one has started.':
     'Eine Änderung gilt ab dem nächsten Spiel, weil das aktuelle schon begonnen hat.',
   'High-contrast colours': 'Kontrastfarben',
-  'Orange and blue instead of green and yellow, easier to tell apart with colour vision deficiency.':
-    'Orange und Blau statt Grün und Gelb – leichter zu unterscheiden bei Farbsehschwäche.',
+  'Orange and blue for the hints, easier to tell apart with colour vision deficiency.':
+    'Orange und Blau für die Hinweise – leichter zu unterscheiden bei Farbsehschwäche.',
   'Theme': 'Darstellung',
   'Like the device': 'Wie das Gerät',
-  'Light': 'Hell',
-  'Dark': 'Dunkel',
+  'Friendly': 'Freundlich',
+  'Paper, like the device': 'Papier, wie das Gerät',
+  'Paper, light': 'Papier, hell',
+  'Paper, dark': 'Papier, dunkel',
   'App language': 'App-Sprache',
   'Backup': 'Sicherung',
   'Your games and statistics are stored only on this device. Save a backup before changing phones.':
@@ -80,15 +82,15 @@ export const de: Record<string, string> = {
   'Replace all games and statistics on this device with the backup?':
     'Alle Spiele und Statistiken auf diesem Gerät durch die Sicherung ersetzen?',
   'Backup restored': 'Sicherung wiederhergestellt',
-  'This is not a Wördl backup file': 'Das ist keine Wördl-Sicherung',
-  'About': 'Über Wördl',
+  'This is not a Wortl backup file': 'Das ist keine Wortl-Sicherung',
+  'About': 'Über Wortl',
   '{answers} daily words, {allowed} accepted words.': '{answers} Lösungswörter, {allowed} erlaubte Wörter.',
   'Word lists built from:': 'Die Wortlisten stammen aus:',
 
   // install
-  'Install Wördl: tap Share, then “Add to Home Screen”. Your streak is kept safely there.':
-    'Installiere Wördl: Tippe auf Teilen und dann auf „Zum Home-Bildschirm“. Dort bleibt deine Serie sicher gespeichert.',
-  'Install Wördl on your home screen to play offline and keep your streak safe.':
-    'Installiere Wördl auf dem Startbildschirm, um offline zu spielen und deine Serie sicher zu behalten.',
+  'Install Wortl: tap Share, then “Add to Home Screen”. Your streak is kept safely there.':
+    'Installiere Wortl: Tippe auf Teilen und dann auf „Zum Home-Bildschirm“. Dort bleibt deine Serie sicher gespeichert.',
+  'Install Wortl on your home screen to play offline and keep your streak safe.':
+    'Installiere Wortl auf dem Startbildschirm, um offline zu spielen und deine Serie sicher zu behalten.',
   'Install': 'Installieren',
 };

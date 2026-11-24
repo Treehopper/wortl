@@ -12,7 +12,7 @@ export interface Game {
   id: GameId; // daily: `daily-<date>`; practice: generated
   mode: Mode;
   date?: LocalDate; // daily only
-  number?: number; // daily only: "Wördl #12"
+  number?: number; // daily only: "Wortl #12"
   solution: string;
   guesses: string[];
   hard: boolean; // fixed by the first guess (A10)
@@ -22,7 +22,8 @@ export interface Game {
 }
 
 export type UiLanguage = 'device' | 'en' | 'de';
-export type Theme = 'device' | 'light' | 'dark';
+/** `friendly` is the default light theme; `device`, `light` and `dark` are the paper theme. */
+export type Theme = 'friendly' | 'device' | 'light' | 'dark';
 
 export interface Settings {
   uiLanguage: UiLanguage;
@@ -31,11 +32,13 @@ export interface Settings {
   highContrast: boolean;
   seenHelp: boolean;
   installHintDismissed: boolean;
+  /** Replaces "Wortl" in the header and share text; set via `#title=` in the URL. */
+  customTitle?: string;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
   uiLanguage: 'device',
-  theme: 'device',
+  theme: 'friendly',
   hardMode: false,
   highContrast: false,
   seenHelp: false,

@@ -67,7 +67,7 @@
     display: grid;
     place-items: center;
     border: 2px solid var(--tile-border);
-    border-radius: 12px;
+    border-radius: var(--tile-radius);
     background: var(--tile-bg);
     color: var(--text);
     font: 800 calc(var(--board-w) / 9.5) / 1 var(--font-tile);

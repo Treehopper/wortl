@@ -1,6 +1,6 @@
 import type { LocalDate } from './types.js';
 
-/** The day of "Wördl #1". Never change it: it fixes which word belongs to which date (§7.3). */
+/** The day of "Wortl #1". Never change it: it fixes which word belongs to which date (§7.3). */
 export const EPOCH: LocalDate = '2026-11-23';
 
 const DAY_MS = 86_400_000;

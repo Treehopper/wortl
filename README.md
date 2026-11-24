@@ -1,4 +1,4 @@
-# Wördl – das tägliche Wörter-Rätsel
+# Wortl – das tägliche Wörter-Rätsel
 
 A Progressive Web App (iOS first, Android second) for a German five-letter word-guessing game. Everyone gets the same **daily word**; you have six tries, and after each try the tiles show which letters are in the right place, which are in the word but elsewhere, and which are not in it at all. A **practice mode** gives unlimited extra words. Statistics and streaks are kept on the device.
 
@@ -62,7 +62,7 @@ IDs are referenced in the design. "Must" = v1, "Should" = v1 if cheap, "Could" =
 **Acceptance criteria (B1–B4)**
 - Statistics open by themselves about 2 s after a game ends; the daily sheet shows a countdown to the next word, the practice sheet a *Neues Wort* button.
 - A daily streak counts wins on consecutive dates; a loss or a missed day ends it. The current streak is still shown on the day after the last win (§7.4).
-- The shared text is `Wördl #12 4/6*` plus one row of circles per guess (🟢 🟡 ⚫, or 🟠 🔵 ⚫ in high-contrast mode); `*` marks hard mode. On phones it uses the system share sheet, elsewhere the clipboard.
+- The shared text is `Wortl #12 4/6*` plus one row of circles per guess in the colours of the current theme (🟣 🟠 ⚪ friendly, 🟢 🟡 ⚫ paper, 🟠 🔵 ⚫ high contrast); `*` marks hard mode. On phones it uses the system share sheet, elsewhere the clipboard.
 - *Wrong place* tiles carry a corner dot in addition to their colour. High-contrast mode switches to orange/blue.
 - Confetti and the win bounce respect `prefers-reduced-motion`.
 
@@ -73,14 +73,14 @@ IDs are referenced in the design. "Must" = v1, "Should" = v1 if cheap, "Could" =
 | C1 | As a player, I want to install the app on my iPhone home screen so it feels native and my streak is kept. | Must |
 | C2 | As a new player, I want a short explanation of the rules on first start. | Must |
 | C3 | As a player, I want to export all my games to a JSON file and import them again, so I don't lose my streak if iOS clears storage or I change phones. | Must |
-| C4 | As a player, I want light and dark themes and English or German app texts. | Should |
+| C4 | As a player, I want a choice of themes (including dark) and English or German app texts. | Should |
 | C5 | As a player, I want to see where the word lists come from and under which licences. | Must |
 
 **Acceptance criteria (C1–C5)**
 - In Safari on iOS (not installed) a dismissible hint explains *Teilen → Zum Home-Bildschirm*; on Android the browser's install prompt is offered as a button.
 - *How to play* opens once on first start and from the (?) button.
 - Import validates the file, asks before replacing everything, and replaces all games and settings in one transaction.
-- Settings › Theme and App language: *Wie das Gerät* (default), or a fixed choice.
+- Settings › Theme: *Freundlich* (default, light), or the paper theme: *wie das Gerät*, *hell*, *dunkel*. Settings › App language: *Wie das Gerät* (default), *English*, *Deutsch*.
 
 ---
 
@@ -96,7 +96,7 @@ IDs are referenced in the design. "Must" = v1, "Should" = v1 if cheap, "Could" =
 | Solutions vs. guesses | Two lists: curated lemmas as solutions, all valid word forms as guesses | Fair solutions without rejecting reasonable guesses like *hatte* or *bäume*. |
 | Daily word | `answers[(dayNumber − 1) mod n]`, answers shuffled once with a fixed seed | Same word for everyone without a server; deterministic and testable. |
 | Statistics | Derived from finished games, never stored | No counters to get out of sync; backup is just the games. |
-| Heavy work | None; everything runs on the main thread | A guess is a few set lookups. (VocabFirst needed a worker; Wördl doesn't.) |
+| Heavy work | None; everything runs on the main thread | A guess is a few set lookups. (VocabFirst needed a worker; Wortl doesn't.) |
 
 ---
 
@@ -186,7 +186,7 @@ interface Game {
 }
 
 interface Settings {
-  uiLanguage: 'device' | 'en' | 'de';  theme: 'device' | 'light' | 'dark';
+  uiLanguage: 'device' | 'en' | 'de';  theme: 'friendly' | 'device' | 'light' | 'dark';  // device/light/dark = paper
   hardMode: boolean;  highContrast: boolean;  seenHelp: boolean;  installHintDismissed: boolean;
 }
 ```
@@ -245,13 +245,18 @@ Every guess is written before the UI animates it. On start the app loads today's
 
 ## 8. UI design
 
-Mobile-first, one-hand use, keyboard in the thumb zone. Light and dark themes. Respects `env(safe-area-inset-*)`. Its own look: warm paper background, rounded tiles, teal (*right place*), amber with a corner dot (*wrong place*) and slate (*not in the word*).
+Mobile-first, one-hand use, keyboard in the thumb zone. Respects `env(safe-area-inset-*)`. Its own look, deliberately unlike other word games:
+
+- **Friendly** (default): soft lavender background with a warm glow at the top, white tiles with large radii, a rounded title font; violet (*right place*), peach with a corner dot (*wrong place*), blue-grey (*not in the word*).
+- **Paper** (light, dark, or following the device): warm paper background, serif title; teal, amber with a corner dot, slate.
+
+Themes are sets of CSS custom properties on `:root`, selected by `data-theme`; high contrast overrides the hint colours on top of either theme.
 
 ### 8.1 Screens
 
 ```
 ┌─────────────────────────────┐
-│ (?)        Wördl       ▮▮ ⚙ │
+│ (?)        Wortl       ▮▮ ⚙ │
 │    [ Tageswort #12 | Übung ]│  ↻ new word (practice only)
 │                             │
 │      ┌─┐┌─┐┌─┐┌─┐┌─┐        │

@@ -35,6 +35,7 @@
   let sheet = $state<SheetName>(null);
   let stats = $state<Stats>();
   let langKey = $state('');
+  let title = $state('Wortl');
   let installPrompt = $state<InstallPromptEvent | null>(null);
 
   const showInstallHint = $derived(
@@ -46,10 +47,24 @@
     setLanguage(lang);
     langKey = lang;
     const root = document.documentElement;
-    if (s.theme === 'device') delete root.dataset.theme;
-    else root.dataset.theme = s.theme;
+    root.dataset.theme = s.theme;
     if (s.highContrast) root.dataset.contrast = 'high';
     else delete root.dataset.contrast;
+    title = s.customTitle || 'Wortl';
+    document.title = title;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', getComputedStyle(root).getPropertyValue('--bg').trim());
+  }
+
+  /**
+   * Undocumented: `#title=…` in the URL renames the game in the header and share text.
+   * It is stored, so it survives restarts; `#title=` (empty) restores "Wortl".
+   */
+  async function applyTitleFromHash() {
+    const params = new URLSearchParams(location.hash.slice(1));
+    if (!params.has('title')) return;
+    const customTitle = params.get('title')!.trim().slice(0, 30);
+    history.replaceState(null, '', location.pathname + location.search);
+    await updateSettings({ customTitle });
   }
 
   function show(v: GameView) {
@@ -203,7 +218,7 @@
       sheet = null;
       say(t('Backup restored'));
     } catch {
-      say(t('This is not a Wördl backup file'), 3000);
+      say(t('This is not a Wortl backup file'), 3000);
     }
   }
 
@@ -217,6 +232,7 @@
     void (async () => {
       settings = await app.settings.get();
       applySettings(settings);
+      await applyTitleFromHash();
       await load('daily');
       if (!settings.seenHelp) {
         sheet = 'help';
@@ -230,7 +246,10 @@
     };
     addEventListener('beforeinstallprompt', onPrompt);
     document.addEventListener('visibilitychange', onVisible);
+    const onHash = () => void applyTitleFromHash();
+    addEventListener('hashchange', onHash);
     return () => {
+      removeEventListener('hashchange', onHash);
       removeEventListener('beforeinstallprompt', onPrompt);
       document.removeEventListener('visibilitychange', onVisible);
     };
@@ -245,7 +264,7 @@
       <button type="button" class="icon" onclick={() => (sheet = 'help')} aria-label={t('How to play')}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
       </button>
-      <h1>Wördl</h1>
+      <h1 style:font-size={title.length > 9 ? '1.35rem' : null}>{title}</h1>
       <div class="right">
         <button type="button" class="icon" onclick={openStats} aria-label={t('Statistics')}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z"/></svg>
@@ -334,15 +353,19 @@
   }
   .top {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: 88px minmax(0, 1fr) 88px;
     align-items: center;
     padding: 4px 8px;
   }
   .right { justify-self: end; display: flex; }
   h1 {
     margin: 0;
-    font: 900 1.9rem/1 var(--font-title);
+    font: 900 1.9rem/1.15 var(--font-title);
     letter-spacing: 0.02em;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .icon {
     border: 0;

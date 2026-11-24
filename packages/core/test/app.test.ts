@@ -90,7 +90,11 @@ describe('share (B2)', () => {
     const g = await app.games.daily();
     await app.games.guess(g.id, 'tasse');
     await app.games.guess(g.id, 'katze');
+    expect(await app.games.share(g.id)).toBe('Wortl #1 2/6\n\n🟠🟣⚪⚪🟣\n🟣🟣🟣🟣🟣');
+    await app.settings.update({ theme: 'dark', customTitle: 'Wördl' });
     expect(await app.games.share(g.id)).toBe('Wördl #1 2/6\n\n🟡🟢⚫⚫🟢\n🟢🟢🟢🟢🟢');
+    await app.settings.update({ highContrast: true });
+    expect((await app.games.share(g.id)).split('\n')[3]).toBe('🟠🟠🟠🟠🟠');
   });
 });
 
@@ -108,6 +112,6 @@ describe('backup (C3)', () => {
   });
 
   it('rejects other files', async () => {
-    await expect(app.backup.import({ foo: 1 })).rejects.toThrow('Not a Wördl backup file');
+    await expect(app.backup.import({ foo: 1 })).rejects.toThrow('Not a Wortl backup file');
   });
 });

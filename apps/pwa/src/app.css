@@ -1,9 +1,34 @@
+/* Friendly (default): soft lavender, violet for the right place, peach for the wrong place. */
 :root {
   --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-tile: ui-rounded, 'SF Pro Rounded', system-ui, -apple-system, sans-serif;
-  --font-title: ui-serif, 'New York', Georgia, serif;
+  --font-title: var(--font-tile);
 
+  --bg: #f3f0ff;
+  --bg-image: radial-gradient(120% 60% at 50% 0%, #fff6ec 0%, transparent 70%);
+  --sheet-bg: #ffffff;
+  --text: #2d2459;
+  --text-muted: #6d6796;
+  --tile-bg: #ffffff;
+  --tile-border: #ddd7f6;
+  --tile-border-filled: #9b91d1;
+  --key-bg: #e5e0fb;
+  --correct: #7357f6;
+  --present: #ff9d66;
+  --present-text: #2d2459;
+  --absent: #a4a6c3;
+  --mark-text: #ffffff;
+  --tile-radius: 16px;
+
+  color-scheme: light;
+}
+
+/* Paper: the original theme; light, dark, or following the device. */
+:root[data-theme='light'],
+:root[data-theme='device'] {
+  --font-title: ui-serif, 'New York', Georgia, serif;
   --bg: #f6f1e7;
+  --bg-image: none;
   --sheet-bg: #fffaf0;
   --text: #1d2a2f;
   --text-muted: #5f6b6e;
@@ -15,13 +40,11 @@
   --present: #e0a030;
   --present-text: #1d2a2f;
   --absent: #6f777b;
-  --mark-text: #ffffff;
-
-  color-scheme: light;
+  --tile-radius: 12px;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
+  :root[data-theme='device'] {
     --bg: #14191c;
     --sheet-bg: #1e2529;
     --text: #eef1ee;
@@ -30,14 +53,15 @@
     --tile-border: #343d42;
     --tile-border-filled: #6c777c;
     --key-bg: #3a4348;
-    --correct: #2a9d8f;
     --present: #d39a2c;
     --absent: #353d41;
     color-scheme: dark;
   }
 }
 :root[data-theme='dark'] {
+  --font-title: ui-serif, 'New York', Georgia, serif;
   --bg: #14191c;
+  --bg-image: none;
   --sheet-bg: #1e2529;
   --text: #eef1ee;
   --text-muted: #9aa5a8;
@@ -47,7 +71,9 @@
   --key-bg: #3a4348;
   --correct: #2a9d8f;
   --present: #d39a2c;
+  --present-text: #1d2a2f;
   --absent: #353d41;
+  --tile-radius: 12px;
   color-scheme: dark;
 }
 
@@ -60,7 +86,8 @@
 
 html, body {
   margin: 0;
-  background: var(--bg);
+  background: var(--bg-image) var(--bg);
+  background-attachment: fixed;
   color: var(--text);
   font-family: var(--font-ui);
   overscroll-behavior: none;
