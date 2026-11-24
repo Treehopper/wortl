@@ -304,6 +304,7 @@ German only (`apps/pwa/src/lib/i18n`); there is no language setting. An app lang
 ├─ packages/words/           words-de.json (generated) + WordList implementation
 ├─ tools/build-words/        builds words-de.json from public sources; exclude.txt
 ├─ README.md
+├─ LICENSE                   MIT, for the code; not for the word data
 └─ LICENSES.md               third-party data and code attributions
 ```
 
