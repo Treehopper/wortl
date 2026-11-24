@@ -304,8 +304,11 @@
   .app {
     display: flex;
     flex-direction: column;
-    height: 100dvh;
-    padding-top: calc(env(safe-area-inset-top) + 8px); /* clear of the blurred status bar on iOS */
+    /* Pinned to the screen edges, not 100dvh: in an iOS home-screen app with a translucent status bar,
+       100dvh is short by the status bar's height and leaves a gap below the keyboard. */
+    position: fixed;
+    inset: 0;
+    padding-top: calc(env(safe-area-inset-top) + 14px); /* clear of the blurred status bar on iOS */
     padding-bottom: calc(8px + env(safe-area-inset-bottom));
     box-sizing: border-box;
     max-width: 560px;
