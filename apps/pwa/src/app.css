@@ -23,23 +23,23 @@
   color-scheme: light;
 }
 
-/* Paper: the original theme; light, dark, or following the device. */
+/* Paper: the original theme; light, dark, or following the device. Light uses the classic Wordle colours. */
 :root[data-theme='light'],
 :root[data-theme='device'] {
   --font-title: ui-serif, 'New York', Georgia, serif;
-  --bg: #f6f1e7;
+  --bg: #ffffff;
   --bg-image: none;
-  --sheet-bg: #fffaf0;
-  --text: #1d2a2f;
-  --text-muted: #5f6b6e;
-  --tile-bg: #fffaf0;
-  --tile-border: #ddd4c2;
-  --tile-border-filled: #8a8170;
-  --key-bg: #e6dfcf;
-  --correct: #2a9d8f;
-  --present: #e0a030;
-  --present-text: #1d2a2f;
-  --absent: #6f777b;
+  --sheet-bg: #ffffff;
+  --text: #1a1a1b;
+  --text-muted: #787c7e;
+  --tile-bg: #ffffff;
+  --tile-border: #d3d6da;
+  --tile-border-filled: #878a8c;
+  --key-bg: #d3d6da;
+  --correct: #6aaa64;
+  --present: #c9b458;
+  --present-text: #ffffff;
+  --absent: #787c7e;
   --tile-radius: 12px;
 }
 
@@ -53,7 +53,9 @@
     --tile-border: #343d42;
     --tile-border-filled: #6c777c;
     --key-bg: #3a4348;
+    --correct: #2a9d8f;
     --present: #d39a2c;
+    --present-text: #1d2a2f;
     --absent: #353d41;
     color-scheme: dark;
   }

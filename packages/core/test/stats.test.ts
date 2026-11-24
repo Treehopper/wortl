@@ -25,16 +25,16 @@ describe('computeStats (§7.4)', () => {
       daily('2026-11-26', 'lost', 6),
       daily('2026-11-27', 'won', 4), daily('2026-11-29', 'won', 1), daily('2026-11-30', 'won', 2),
     ];
-    const s = computeStats('daily', games, '2026-11-30');
+    const s = computeStats(games, '2026-11-30');
     expect(s).toMatchObject({ played: 7, won: 6, maxStreak: 3, currentStreak: 2 });
     expect(s.distribution).toEqual([1, 2, 2, 1, 0, 0]);
   });
   it('keeps the current streak through the next day, then drops it', () => {
     const games = [daily('2026-11-23', 'won'), daily('2026-11-24', 'won')];
-    expect(computeStats('daily', games, '2026-11-25').currentStreak).toBe(2);
-    expect(computeStats('daily', games, '2026-11-26').currentStreak).toBe(0);
+    expect(computeStats(games, '2026-11-25').currentStreak).toBe(2);
+    expect(computeStats(games, '2026-11-26').currentStreak).toBe(0);
   });
   it('ignores unfinished games', () => {
-    expect(computeStats('daily', [daily('2026-11-23', 'playing')], '2026-11-23').played).toBe(0);
+    expect(computeStats([daily('2026-11-23', 'playing')], '2026-11-23').played).toBe(0);
   });
 });

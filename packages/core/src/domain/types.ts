@@ -1,4 +1,5 @@
 export type Mark = 'correct' | 'present' | 'absent';
+/** Only daily games are played; `practice` occurs in games saved by earlier versions and is ignored. */
 export type Mode = 'daily' | 'practice';
 export type GameId = string;
 export type GameState = 'playing' | 'won' | 'lost';
@@ -9,10 +10,10 @@ export type LocalDate = string;
 export type Timestamp = string;
 
 export interface Game {
-  id: GameId; // daily: `daily-<date>`; practice: generated
+  id: GameId; // `daily-<date>`
   mode: Mode;
-  date?: LocalDate; // daily only
-  number?: number; // daily only: "Wortl #12"
+  date?: LocalDate;
+  number?: number; // "Wortl #12"
   solution: string;
   guesses: string[];
   hard: boolean; // fixed by the first guess (A10)
@@ -21,23 +22,20 @@ export interface Game {
   finishedAt?: Timestamp;
 }
 
-export type UiLanguage = 'de' | 'en';
 /** `friendly` is the default light theme; `device`, `light` and `dark` are the paper theme. */
 export type Theme = 'friendly' | 'device' | 'light' | 'dark';
 
 export interface Settings {
-  uiLanguage: UiLanguage;
   theme: Theme;
   hardMode: boolean;
   highContrast: boolean;
   seenHelp: boolean;
   installHintDismissed: boolean;
-  /** Replaces "Wortl" in the header and share text; set via `#title=` in the URL. */
+  /** Replaces "Wortl" throughout the app and in the share text; set via `#title=` in the URL. */
   customTitle?: string;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  uiLanguage: 'de',
   theme: 'friendly',
   hardMode: false,
   highContrast: false,

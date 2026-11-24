@@ -1,6 +1,6 @@
 import { computeStats, type Stats } from './domain/stats.js';
 import { shareText } from './domain/share.js';
-import type { Game, GameId, Mode, Settings, Timestamp } from './domain/types.js';
+import type { Game, GameId, Settings, Timestamp } from './domain/types.js';
 import type { Ports } from './ports/index.js';
 import { GameService, type GameView, type GuessResult } from './services/game-service.js';
 import { SettingsService } from './services/settings-service.js';
@@ -16,18 +16,16 @@ export interface BackupV1 {
 export interface WortlApp {
   games: {
     daily(): Promise<GameView>;
-    practice(): Promise<GameView>;
-    newPractice(): Promise<GameView>;
     get(id: GameId): Promise<GameView | undefined>;
     guess(id: GameId, word: string): Promise<GuessResult>;
     share(id: GameId, url?: string): Promise<string>;
   };
-  stats: { get(mode: Mode): Promise<Stats> };
+  stats: { get(): Promise<Stats> };
   settings: { get(): Promise<Settings>; update(patch: Partial<Settings>): Promise<Settings> };
   backup: { export(): Promise<BackupV1>; import(data: unknown): Promise<void> };
 }
 
-const META_KEYS = ['settings', 'currentPractice'] as const;
+const META_KEYS = ['settings'] as const;
 
 export function createApp(p: Ports): WortlApp {
   const settings = new SettingsService(p);
@@ -36,8 +34,6 @@ export function createApp(p: Ports): WortlApp {
   return {
     games: {
       daily: () => games.daily(),
-      practice: () => games.practice(),
-      newPractice: () => games.newPractice(),
       get: (id) => games.get(id),
       guess: (id, word) => games.guess(id, word),
       async share(id, url) {
@@ -49,7 +45,7 @@ export function createApp(p: Ports): WortlApp {
       },
     },
     stats: {
-      get: async (mode) => computeStats(mode, await p.games.list(mode), p.clock.today()),
+      get: async () => computeStats(await p.games.list('daily'), p.clock.today()),
     },
     settings: {
       get: () => settings.get(),

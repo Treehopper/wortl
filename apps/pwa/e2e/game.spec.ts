@@ -34,20 +34,42 @@ test('plays the daily word: invalid word, guess, resume after reload, win', asyn
   await expect(page.getByRole('dialog')).toHaveCount(0); // help is shown only once
 
   await type(page, solution);
-  const stats = page.getByRole('dialog', { name: 'Statistik · Tageswort' });
+  const stats = page.getByRole('dialog', { name: 'Statistik' });
   await expect(stats).toBeVisible({ timeout: 8000 });
   await expect(stats.getByText('Gelöst mit 2 von 6 Versuchen')).toBeVisible();
   await expect(stats.getByRole('button', { name: 'Teilen' })).toBeVisible();
 });
 
-test('physical keyboard and practice mode', async ({ page }) => {
+test('physical keyboard', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('dialog', { name: 'So geht’s' })).toBeVisible();
   await page.keyboard.press('Escape');
-  await page.getByRole('tab', { name: 'Übung' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.keyboard.type('kat');
   await page.keyboard.press('Enter');
   await expect(page.getByText('Zu wenige Buchstaben')).toBeVisible();
   await page.keyboard.press('Backspace');
   await expect(page.getByRole('row').first().getByRole('gridcell').nth(2)).toHaveText('');
+});
+
+test('a title in the URL renames the game and stays for the home screen', async ({ page }) => {
+  await page.goto('/#title=Wörtchen');
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Wörtchen');
+  await expect(page).toHaveTitle('Wörtchen');
+  await expect(page.locator('meta[name="apple-mobile-web-app-title"]')).toHaveAttribute('content', 'Wörtchen');
+  await expect.poll(() => page.evaluate(() => location.hash)).toBe('#title=W%C3%B6rtchen');
+
+  await page.goto('/'); // without the parameter the stored title comes back, also into the URL
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Wörtchen');
+  await expect.poll(() => page.evaluate(() => location.hash)).toBe('#title=W%C3%B6rtchen');
+  const manifest = await page.evaluate(async () => {
+    const href = document.querySelector<HTMLLinkElement>('link[rel="manifest"]')!.href;
+    return { href, ...((await (await fetch(href)).json()) as { name: string; start_url: string }) };
+  });
+  expect(manifest).toMatchObject({ href: expect.stringMatching(/^blob:/), name: 'Wörtchen', start_url: expect.stringMatching(/#title=W%C3%B6rtchen$/) });
+
+  await page.goto('/#title=');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Wortl');
+  await expect.poll(() => page.evaluate(() => location.hash)).toBe('');
 });

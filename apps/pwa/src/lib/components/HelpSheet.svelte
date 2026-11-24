@@ -24,7 +24,7 @@
   {/each}
   <ul>
     <li>{t('Ä, Ö and Ü are letters of their own. ß is written as SS.')}</li>
-    <li>{t('A new daily word appears every day at midnight. In practice mode you can play as often as you like.')}</li>
+    <li>{t('A new word appears every day at midnight.')}</li>
     <li>{t('Hard mode: letters you have found must be used in every later guess.')}</li>
   </ul>
 </Sheet>

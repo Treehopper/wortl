@@ -52,7 +52,7 @@ describe('daily game', () => {
     const g = await app.games.daily();
     for (let i = 0; i < 6; i++) await app.games.guess(g.id, 'tasse');
     expect(await app.games.daily()).toMatchObject({ state: 'lost', solution: 'katze' });
-    expect(await app.stats.get('daily')).toMatchObject({ played: 1, won: 0 });
+    expect(await app.stats.get()).toMatchObject({ played: 1, won: 0 });
   });
 });
 
@@ -64,24 +64,6 @@ describe('hard mode (A10)', () => {
     await app.settings.update({ hardMode: false });
     const r = await app.games.guess(g.id, 'mappe');
     expect(r).toMatchObject({ ok: false, error: { kind: 'hard', violation: { kind: 'missing', letter: 't' } } });
-  });
-});
-
-describe('practice (A9)', () => {
-  it('never picks the daily word and resumes the open game', async () => {
-    for (let i = 0; i < 20; i++) {
-      const p = await app.games.newPractice();
-      expect((await ports.games.get(p.id))!.solution).not.toBe('katze');
-    }
-    const open = await app.games.practice();
-    expect((await app.games.practice()).id).toBe(open.id);
-  });
-
-  it('counts an abandoned game with guesses as lost', async () => {
-    const p = await app.games.practice();
-    await app.games.guess(p.id, 'tasse');
-    await app.games.newPractice();
-    expect(await app.stats.get('practice')).toMatchObject({ played: 1, won: 0 });
   });
 });
 
@@ -99,10 +81,21 @@ describe('share (B2)', () => {
 });
 
 describe('settings', () => {
-  it('uses German, also for the former "like the device" value', async () => {
-    expect((await app.settings.get()).uiLanguage).toBe('de');
-    await ports.meta.set('settings', { uiLanguage: 'device' });
-    expect((await app.settings.get()).uiLanguage).toBe('de');
+  it('drops the app language stored by earlier versions', async () => {
+    await ports.meta.set('settings', { uiLanguage: 'en', theme: 'dark' });
+    const s = await app.settings.get();
+    expect(s).not.toHaveProperty('uiLanguage');
+    expect(s.theme).toBe('dark');
+  });
+});
+
+describe('statistics', () => {
+  it('ignores practice games from earlier versions', async () => {
+    await ports.games.save({
+      id: 'p1', mode: 'practice', solution: 'tasse', guesses: ['tasse'], hard: false, state: 'won',
+      startedAt: '2026-11-23T08:00:00Z', finishedAt: '2026-11-23T08:01:00Z',
+    });
+    expect(await app.stats.get()).toMatchObject({ played: 0 });
   });
 });
 
@@ -116,7 +109,7 @@ describe('backup (C3)', () => {
     const other = createApp(memoryPorts(words, '2026-11-23'));
     await other.backup.import(data);
     expect(await other.settings.get()).toMatchObject({ theme: 'dark' });
-    expect(await other.stats.get('daily')).toMatchObject({ played: 1, won: 1 });
+    expect(await other.stats.get()).toMatchObject({ played: 1, won: 1 });
   });
 
   it('rejects other files', async () => {

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { GameView, GuessError, Mark, Mode, Settings, Stats } from '@wortl/core';
+  import type { GameView, GuessError, Mark, Settings, Stats } from '@wortl/core';
   import { onMount } from 'svelte';
   import { app, isIos, isStandalone } from './lib/app.js';
   import Board from './lib/components/Board.svelte';
@@ -9,7 +9,8 @@
   import SettingsSheet from './lib/components/SettingsSheet.svelte';
   import StatsSheet from './lib/components/StatsSheet.svelte';
   import { confetti } from './lib/confetti.js';
-  import { msg, setLanguage, t } from './lib/i18n/index.js';
+  import { msg, setTitle, t } from './lib/i18n/index.js';
+  import { applyTitle, DEFAULT_TITLE, titleFromUrl } from './lib/title.js';
 
   const TILE_DELAY = 260;
   const FLIP = 520;
@@ -22,9 +23,7 @@
   }
 
   let settings = $state<Settings>();
-  let mode = $state<Mode>('daily');
   let view = $state<GameView>();
-  let dailyNumber = $state<number>();
   let current = $state<string[]>([]);
   let keys = $state<Record<string, Mark>>({}); // lags behind view.keys until the reveal ends
   let revealRow = $state(-1);
@@ -34,8 +33,7 @@
   let toast = $state<{ text: string; id: number } | null>(null);
   let sheet = $state<SheetName>(null);
   let stats = $state<Stats>();
-  let langKey = $state('');
-  let title = $state('Wortl');
+  let title = $state(DEFAULT_TITLE);
   let installPrompt = $state<InstallPromptEvent | null>(null);
 
   const showInstallHint = $derived(
@@ -43,27 +41,23 @@
   );
 
   function applySettings(s: Settings) {
-    setLanguage(s.uiLanguage);
-    langKey = s.uiLanguage;
     const root = document.documentElement;
     root.dataset.theme = s.theme;
     if (s.highContrast) root.dataset.contrast = 'high';
     else delete root.dataset.contrast;
-    title = s.customTitle || 'Wortl';
-    document.title = title;
+    title = s.customTitle || DEFAULT_TITLE;
+    setTitle(title);
+    void applyTitle(s.customTitle);
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', getComputedStyle(root).getPropertyValue('--bg').trim());
   }
 
-  /**
-   * Undocumented: `#title=…` in the URL renames the game in the header and share text.
-   * It is stored, so it survives restarts; `#title=` (empty) restores "Wortl".
-   */
-  async function applyTitleFromHash() {
-    const params = new URLSearchParams(location.hash.slice(1));
-    if (!params.has('title')) return;
-    const customTitle = params.get('title')!.trim().slice(0, 30);
-    history.replaceState(null, '', location.pathname + location.search);
-    await updateSettings({ customTitle });
+  /** Undocumented: `#title=…` in the URL renames the game (lib/title.ts); `#title=` restores "Wortl". */
+  async function applyTitleFromUrl() {
+    const customTitle = titleFromUrl();
+    if (customTitle !== undefined && customTitle !== (settings?.customTitle ?? '')) {
+      settings = await app.settings.update({ customTitle });
+      applySettings(settings);
+    }
   }
 
   function show(v: GameView) {
@@ -72,12 +66,6 @@
     keys = v.keys;
     revealRow = -1;
     bounceRow = -1;
-    if (v.mode === 'daily') dailyNumber = v.number;
-  }
-
-  async function load(m: Mode) {
-    mode = m;
-    show(m === 'daily' ? await app.games.daily() : await app.games.practice());
   }
 
   function say(text: string, ms = 1800) {
@@ -134,15 +122,18 @@
     await openStats();
   }
 
+  // Not `sheet`: after Escape the dialog is closed a moment before its close event clears `sheet`.
+  const dialogOpen = () => document.querySelector('dialog[open]') !== null;
+
   function onkey(key: string) {
-    if (busy || sheet || !view || view.state !== 'playing') return;
+    if (busy || dialogOpen() || !view || view.state !== 'playing') return;
     if (key === 'enter') void submit();
     else if (key === 'back') current = current.slice(0, -1);
     else if (current.length < view.length) current = [...current, key];
   }
 
   function onKeydown(e: KeyboardEvent) {
-    if (e.metaKey || e.ctrlKey || e.altKey || sheet) return;
+    if (e.metaKey || e.ctrlKey || e.altKey || dialogOpen()) return;
     const k = e.key.toLowerCase();
     if (k === 'enter') onkey('enter');
     else if (k === 'backspace') onkey('back');
@@ -153,21 +144,8 @@
   }
 
   async function openStats() {
-    stats = await app.stats.get(mode);
+    stats = await app.stats.get();
     sheet = 'stats';
-  }
-
-  async function switchMode(m: Mode) {
-    if (busy || m === mode) return;
-    await load(m);
-  }
-
-  async function newPractice() {
-    if (busy) return;
-    if (view?.state === 'playing' && view.rows.length > 0 && !confirm(t('Give up this word? It counts as lost.'))) return;
-    sheet = null;
-    mode = 'practice';
-    show(await app.games.newPractice());
   }
 
   async function share() {
@@ -192,7 +170,7 @@
 
   async function exportBackup() {
     const data = JSON.stringify(await app.backup.export(), null, 1);
-    const name = `wortl-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    const name = `${title.replace(/[^\p{L}\p{N}]+/gu, '-')}-Sicherung-${new Date().toISOString().slice(0, 10)}.json`;
     const file = new File([data], name, { type: 'application/json' });
     try {
       if (navigator.canShare?.({ files: [file] }) && matchMedia('(pointer: coarse)').matches) {
@@ -213,16 +191,16 @@
       await app.backup.import(JSON.parse(await file.text()));
       settings = await app.settings.get();
       applySettings(settings);
-      await load(mode);
+      show(await app.games.daily());
       sheet = null;
       say(t('Backup restored'));
     } catch {
-      say(t('This is not a Wortl backup file'), 3000);
+      say(t('This is not a {title} backup file'), 3000);
     }
   }
 
   async function onVisible() {
-    if (document.visibilityState !== 'visible' || busy || mode !== 'daily' || !view) return;
+    if (document.visibilityState !== 'visible' || busy || !view) return;
     const today = await app.games.daily();
     if (today.id !== view.id) show(today); // the date changed while the app was in the background
   }
@@ -230,9 +208,9 @@
   onMount(() => {
     void (async () => {
       settings = await app.settings.get();
+      await applyTitleFromUrl(); // before applySettings writes the stored title into the URL
       applySettings(settings);
-      await applyTitleFromHash();
-      await load('daily');
+      show(await app.games.daily());
       if (!settings.seenHelp) {
         sheet = 'help';
         settings = await app.settings.update({ seenHelp: true });
@@ -245,7 +223,7 @@
     };
     addEventListener('beforeinstallprompt', onPrompt);
     document.addEventListener('visibilitychange', onVisible);
-    const onHash = () => void applyTitleFromHash();
+    const onHash = () => void applyTitleFromUrl();
     addEventListener('hashchange', onHash);
     return () => {
       removeEventListener('hashchange', onHash);
@@ -257,7 +235,7 @@
 
 <svelte:window onkeydown={onKeydown} />
 
-{#key langKey}
+{#key title}
   <div class="app">
     <header class="top">
       <button type="button" class="icon" onclick={() => (sheet = 'help')} aria-label={t('How to play')}>
@@ -274,21 +252,9 @@
       </div>
     </header>
 
-    <nav class="modes" aria-label={t('Mode')}>
-      <div class="segmented" role="tablist">
-        <button type="button" role="tab" aria-selected={mode === 'daily'} onclick={() => switchMode('daily')}>
-          {t('Daily word')}{dailyNumber ? ` #${dailyNumber}` : ''}
-        </button>
-        <button type="button" role="tab" aria-selected={mode === 'practice'} onclick={() => switchMode('practice')}>
-          {t('Practice')}
-        </button>
-      </div>
-      {#if mode === 'practice'}
-        <button type="button" class="icon small" onclick={newPractice} aria-label={t('New word')} title={t('New word')}>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
-        </button>
-      {/if}
-    </nav>
+    {#if view?.number}
+      <p class="number">{t('Daily word')} #{view.number}</p>
+    {/if}
 
     {#if showInstallHint}
       <InstallHint
@@ -312,11 +278,6 @@
         <div class="over">
           {#if view.state === 'lost'}<span>{t('The word was')} <b>{view.solution?.toUpperCase()}</b></span>{/if}
           <button type="button" class="btn primary" onclick={openStats}>{t('Statistics')}</button>
-          {#if mode === 'practice'}
-            <button type="button" class="btn secondary" onclick={newPractice}>{t('New word')}</button>
-          {:else}
-            <button type="button" class="btn secondary" onclick={() => switchMode('practice')}>{t('Practice')}</button>
-          {/if}
         </div>
       {/if}
       <Keyboard {keys} {onkey} />
@@ -326,7 +287,7 @@
   {#if sheet === 'help'}
     <HelpSheet onclose={() => (sheet = null)} />
   {:else if sheet === 'stats' && stats && view}
-    <StatsSheet {stats} {view} onclose={() => (sheet = null)} onshare={share} onnewpractice={newPractice} />
+    <StatsSheet {stats} {view} onclose={() => (sheet = null)} onshare={share} />
   {:else if sheet === 'settings' && settings}
     <SettingsSheet
       {settings}
@@ -376,32 +337,11 @@
     border-radius: 50%;
   }
   .icon svg { width: 100%; height: 100%; display: block; }
-  .icon.small { width: 38px; height: 38px; padding: 8px; }
-  .modes {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 6px;
-    padding: 2px 12px 10px;
-  }
-  .segmented {
-    display: inline-flex;
-    background: var(--key-bg);
-    border-radius: 999px;
-    padding: 3px;
-  }
-  .segmented button {
-    border: 0;
-    background: none;
+  .number {
+    margin: 0;
+    text-align: center;
     color: var(--text-muted);
     font: 700 0.88rem var(--font-ui);
-    padding: 7px 16px;
-    border-radius: 999px;
-  }
-  .segmented button[aria-selected='true'] {
-    background: var(--sheet-bg);
-    color: var(--text);
-    box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
   }
   main {
     flex: 1;

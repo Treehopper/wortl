@@ -1,6 +1,6 @@
 # Wortl – das tägliche Wörter-Rätsel
 
-A Progressive Web App (iOS first, Android second) for a German five-letter word-guessing game. Everyone gets the same **daily word**; you have six tries, and after each try the tiles show which letters are in the right place, which are in the word but elsewhere, and which are not in it at all. A **practice mode** gives unlimited extra words. Statistics and streaks are kept on the device.
+A Progressive Web App (iOS first, Android second) for a German five-letter word-guessing game. Everyone gets the same **daily word**; you have six tries, and after each try the tiles show which letters are in the right place, which are in the word but elsewhere, and which are not in it at all. Statistics and streaks are kept on the device.
 
 The target player is a German speaker who plays one round a day, often on the phone. Three design rules follow from that:
 1. **Words must feel fair.** Solutions are common German lemmas: no names, places, English words, plurals or conjugated forms (§6). Guesses may be any valid German word form.
@@ -39,28 +39,26 @@ IDs are referenced in the design. "Must" = v1, "Should" = v1 if cheap, "Could" =
 | A6 | As a player, I want Ä, Ö and Ü treated as letters of their own, and ß written as SS. | Must |
 | A7 | As a player, I want to close the app at any time and continue exactly where I was. | Must |
 | A8 | As a player, I want to see the solution when I lose. | Must |
-| A9 | As a player, I want a practice mode with unlimited words that never spoils today's daily word. | Should |
 | A10 | As a player, I want a hard mode in which every hint I found must be used in later guesses. | Should |
 
-**Acceptance criteria (A1–A10)**
+**Acceptance criteria (A1–A10; A9, a practice mode, was dropped)**
 - The daily word changes at local midnight. A game left open over midnight stays as it was; the next daily game appears when the app comes back to the foreground.
 - Marks follow §7.1: exact hits first, then *wrong place* left to right while unmatched copies of the letter remain.
 - A rejected guess shakes the row and shows the reason: *Zu wenige Buchstaben*, *Nicht in der Wortliste*, or the hard-mode rule broken (*Buchstabe 2 muss A sein*, *Das Wort muss K enthalten*). The typed letters stay so the player can fix them.
 - The keyboard shows the best mark per letter, updated only after the reveal animation ends.
 - Hard mode is fixed by a game's first guess; changing the setting mid-game applies from the next game, and the settings screen says so.
-- Starting a new practice word while one with guesses is open asks for confirmation and counts the open one as lost.
 
 ### Epic B – Statistics and sharing
 
 | ID | Story | Priority |
 |----|-------|----------|
-| B1 | As a player, I want to see games played, win rate, current and best streak, and how many guesses my wins needed, separately for daily and practice games. | Must |
+| B1 | As a player, I want to see games played, win rate, current and best streak, and how many guesses my wins needed. | Must |
 | B2 | As a player, I want to share my result without spoiling the word. | Must |
 | B3 | As a player, I want a short celebration when I win. | Should |
 | B4 | As a player with colour vision deficiency, I want colours I can tell apart. | Should |
 
 **Acceptance criteria (B1–B4)**
-- Statistics open by themselves about 2 s after a game ends; the daily sheet shows a countdown to the next word, the practice sheet a *Neues Wort* button.
+- Statistics open by themselves about 2 s after a game ends; the sheet shows a countdown to the next word.
 - A daily streak counts wins on consecutive dates; a loss or a missed day ends it. The current streak is still shown on the day after the last win (§7.4).
 - The shared text is `Wortl #12 4/6*` plus one row of circles per guess in the colours of the current theme (🟣 🟠 ⚪ friendly, 🟢 🟡 ⚫ paper, 🟠 🔵 ⚫ high contrast); `*` marks hard mode. On phones it uses the system share sheet, elsewhere the clipboard.
 - *Wrong place* tiles carry a corner dot in addition to their colour. High-contrast mode switches to orange/blue.
@@ -73,14 +71,14 @@ IDs are referenced in the design. "Must" = v1, "Should" = v1 if cheap, "Could" =
 | C1 | As a player, I want to install the app on my iPhone home screen so it feels native and my streak is kept. | Must |
 | C2 | As a new player, I want a short explanation of the rules on first start. | Must |
 | C3 | As a player, I want to export all my games to a JSON file and import them again, so I don't lose my streak if iOS clears storage or I change phones. | Must |
-| C4 | As a player, I want a choice of themes (including dark) and English or German app texts. | Should |
+| C4 | As a player, I want a choice of themes, including dark. | Should |
 | C5 | As a player, I want to see where the word lists come from and under which licences. | Must |
 
 **Acceptance criteria (C1–C5)**
 - In Safari on iOS (not installed) a dismissible hint explains *Teilen → Zum Home-Bildschirm*; on Android the browser's install prompt is offered as a button.
 - *How to play* opens once on first start and from the (?) button.
 - Import validates the file, asks before replacing everything, and replaces all games and settings in one transaction.
-- Settings › Theme: *Freundlich* (default, light), or the paper theme: *wie das Gerät*, *hell*, *dunkel*. Settings › App language: *Deutsch* (default) or *English*.
+- Settings › Theme: *Freundlich* (default, light), or the paper theme: *wie das Gerät*, *hell*, *dunkel*.
 
 ---
 
@@ -134,7 +132,7 @@ IDs are referenced in the design. "Must" = v1, "Should" = v1 if cheap, "Could" =
 
 ```ts
 interface GameRepository { get(id); list(mode?); save(game); clear(); }
-interface MetaRepository { get<T>(key); set<T>(key, value); clear(); }   // settings, current practice game
+interface MetaRepository { get<T>(key); set<T>(key, value); clear(); }   // settings
 interface UnitOfWork     { run<T>(fn: () => Promise<T>): Promise<T>; }    // Dexie transaction over all tables
 interface Clock          { now(): Timestamp; today(): LocalDate; }        // today() = player's local date
 interface Random         { next(): number; }
@@ -148,13 +146,11 @@ interface WordList       { length: number; answers: readonly string[]; isAllowed
 interface WortlApp {
   games: {
     daily(): Promise<GameView>;                       // today's game, created on first access (A1, A7)
-    practice(): Promise<GameView>;                    // open practice game or a new one (A9)
-    newPractice(): Promise<GameView>;                 // abandons an open game with guesses as lost
     get(id): Promise<GameView | undefined>;
     guess(id, word): Promise<GuessResult>;            // { ok: true, view } | { ok: false, error, view }
     share(id, url?): Promise<string>;                 // B2
   };
-  stats:    { get(mode): Promise<Stats> };            // B1
+  stats:    { get(): Promise<Stats> };                // B1
   settings: { get(): Promise<Settings>; update(patch): Promise<Settings> };
   backup:   { export(): Promise<BackupV1>; import(data: unknown): Promise<void> };  // C3
 }
@@ -171,13 +167,13 @@ type GuessError = { kind: 'finished' } | { kind: 'tooShort' } | { kind: 'notInLi
 
 ```ts
 type Mark = 'correct' | 'present' | 'absent';
-type Mode = 'daily' | 'practice';
+type Mode = 'daily' | 'practice';  // only daily is played; 'practice' games from earlier versions are ignored
 
 interface Game {
-  id: string;              // daily: `daily-2026-11-23`; practice: random UUID
+  id: string;              // `daily-2026-11-23`
   mode: Mode;
-  date?: LocalDate;        // daily only, `YYYY-MM-DD` in the player's time zone
-  number?: number;         // daily only: puzzle number
+  date?: LocalDate;        // `YYYY-MM-DD` in the player's time zone
+  number?: number;         // puzzle number
   solution: string;        // game spelling (§6)
   guesses: string[];
   hard: boolean;           // fixed by the first guess
@@ -186,7 +182,7 @@ interface Game {
 }
 
 interface Settings {
-  uiLanguage: 'de' | 'en';  theme: 'friendly' | 'device' | 'light' | 'dark';  // device/light/dark = paper
+  theme: 'friendly' | 'device' | 'light' | 'dark';  // device/light/dark = paper
   hardMode: boolean;  highContrast: boolean;  seenHelp: boolean;  installHintDismissed: boolean;
 }
 ```
@@ -228,17 +224,17 @@ For every earlier guess: each `correct` letter must be at the same position in t
 `dayNumber(date) = days since 2026-11-23 + 1` (computed on UTC midnights of the calendar dates, so daylight-saving changes don't matter; dates before the epoch map to 1). The epoch never changes.
 
 ### 7.4 Statistics and streaks (B1)
-Computed from all finished games of a mode. Daily games are ordered by date; a win continues the streak if the previous game was a win on the previous date. The current streak is the run ending at the last game, set to 0 when that game is a loss or more than one day before today. Practice games are ordered by `finishedAt`; consecutive wins form the streak. The distribution counts wins by number of guesses.
+Computed from all finished daily games, ordered by date; a win continues the streak if the previous game was a win on the previous date. The current streak is the run ending at the last game, set to 0 when that game is a loss or more than one day before today. The distribution counts wins by number of guesses.
 
 ### 7.5 Resume (A7)
-Every guess is written before the UI animates it. On start the app loads today's daily game (creating it if needed); in practice mode it loads the game referenced by `meta.currentPractice`. The letters of an unsent guess are not stored.
+Every guess is written before the UI animates it. On start the app loads today's daily game (creating it if needed). The letters of an unsent guess are not stored.
 
 ### 7.6 Backup (C3)
-`BackupV1 = { format: 'wortl-backup', version: 1, exportedAt, games, meta }` where `meta` holds `settings` and `currentPractice`. Import checks the format, then clears and refills both tables in one transaction. On phones the file goes through the share sheet (*In Dateien sichern*), elsewhere it downloads.
+`BackupV1 = { format: 'wortl-backup', version: 1, exportedAt, games, meta }` where `meta` holds `settings`. Import checks the format, then clears and refills both tables in one transaction. On phones the file goes through the share sheet (*In Dateien sichern*), elsewhere it downloads.
 
 ### 7.7 Path to a backend
 - Implement `storage-http` with the same repository interfaces, or expose the `WortlApp` facade over REST/JSON.
-- Daily game IDs are deterministic (`daily-<date>`), practice IDs are UUIDs, timestamps ISO-8601 UTC → straightforward last-writer-wins sync per game.
+- Daily game IDs are deterministic (`daily-<date>`), timestamps ISO-8601 UTC → straightforward last-writer-wins sync per game.
 - A server-side daily word would replace `dailySolution` behind the `WordList` port; to keep solutions secret the server would then evaluate guesses.
 
 ---
@@ -248,7 +244,7 @@ Every guess is written before the UI animates it. On start the app loads today's
 Mobile-first, one-hand use, keyboard in the thumb zone. Respects `env(safe-area-inset-*)`. Its own look, deliberately unlike other word games:
 
 - **Friendly** (default): soft lavender background with a warm glow at the top, white tiles with large radii, a rounded title font; violet (*right place*), peach with a corner dot (*wrong place*), blue-grey (*not in the word*).
-- **Paper** (light, dark, or following the device): warm paper background, serif title; teal, amber with a corner dot, slate.
+- **Paper** (light, dark, or following the device): serif title. Light uses the classic Wordle colours (white, green `#6aaa64`, yellow `#c9b458` with a corner dot, grey `#787c7e`); dark keeps teal, amber and slate.
 
 Themes are sets of CSS custom properties on `:root`, selected by `data-theme`; high contrast overrides the hint colours on top of either theme.
 
@@ -257,21 +253,21 @@ Themes are sets of CSS custom properties on `:root`, selected by `data-theme`; h
 ```
 ┌─────────────────────────────┐
 │ (?)        Wortl       ▮▮ ⚙ │
-│    [ Tageswort #12 | Übung ]│  ↻ new word (practice only)
+│        Tageswort #12        │
 │                             │
 │      ┌─┐┌─┐┌─┐┌─┐┌─┐        │
 │      │S││T││E││I││N│        │  6 × 5 board, sized to the free space
 │      └─┘└─┘└─┘└─┘└─┘        │  (container query units)
 │           …                 │
 │                             │
-│   Das Wort war WODKA        │  after the game: Statistik / Übung buttons
+│   Das Wort war WODKA        │  after the game: Statistik button
 │ Q W E R T Z U I O P Ü       │
 │ A S D F G H J K L Ö Ä       │
 │ EINGABE Y X C V B N M ⌫     │
 └─────────────────────────────┘
 ```
 
-Sheets (native `<dialog>`, sliding up from the bottom): *So geht's* (rules with examples), *Statistik* (numbers, distribution, share, countdown / new word), *Einstellungen* (hard mode, high contrast, theme, app language, backup, about).
+Sheets (native `<dialog>`, sliding up from the bottom): *So geht's* (rules with examples), *Statistik* (numbers, distribution, share, countdown), *Einstellungen* (hard mode, high contrast, theme, backup, about).
 
 **Animations**: letter pop on typing, row shake on rejection, tiles flip one after another (260 ms apart) on reveal, a bounce of the winning row, confetti (canvas, ~2 s). All off with `prefers-reduced-motion`.
 
@@ -279,11 +275,11 @@ Sheets (native `<dialog>`, sliding up from the bottom): *So geht's* (rules with 
 Settings that are hard to guess from their name (hard mode, high-contrast colours) have a small (i) after the name. A tap shows two or three sentences below the setting; another tap hides them. The (i) never toggles the setting.
 
 ### 8.3 App language
-German, with English as an option (`apps/pwa/src/lib/i18n`). Settings › App language: *Deutsch* (default, whatever the device language) or *English*. A stored `device` value from earlier versions reads as German.
+German only (`apps/pwa/src/lib/i18n`); there is no language setting. An app language stored by earlier versions is dropped.
 
-- Texts are keyed by their English wording: `t('Not in the word list')`, `t('Letter {n} must be {letter}', { n, letter })`. Texts used indirectly are marked with `msg('…')`. A missing German text shows the English one.
+- Texts are keyed by their English wording: `t('Not in the word list')`, `t('Letter {n} must be {letter}', { n, letter })`. Texts used indirectly are marked with `msg('…')`.
 - German lives in `i18n/de/index.ts`; informal *du*. A unit test fails for any `t()`/`msg()` text without German, for German that loses a `{placeholder}`, and for German texts nothing uses.
-- Numbers and percentages follow the app language (`fmt`, `pct`).
+- Numbers and percentages use German formatting (`fmt`, `pct`).
 
 ---
 
@@ -316,7 +312,7 @@ German, with English as an option (`apps/pwa/src/lib/i18n`). Settings › App la
 ```ts
 db.version(1).stores({
   games: 'id, mode',
-  meta:  'key',          // settings, currentPractice
+  meta:  'key',          // settings
 });
 ```
 
@@ -345,11 +341,11 @@ npm run icons -w apps/pwa   # regenerate PNG icons from public/logo.svg
 - **Hard mode**: position rule, count rule for repeated letters, a valid follow-up.
 - **Daily**: numbering from the epoch, across a DST change, before the epoch; cycling through the list.
 - **Stats**: streaks broken by a loss and by a missed day; current streak on the next day and the day after; unfinished games ignored.
-- **App**: resume after "restart" (new `createApp` over the same ports), day change, rejected guesses don't use a try, normalising case and ß, win/loss, hard mode fixed at the first guess, practice never equals today's word, abandoning counts as lost, share text, backup round-trip and rejection of foreign files.
+- **App**: resume after "restart" (new `createApp` over the same ports), day change, rejected guesses don't use a try, normalising case and ß, win/loss, hard mode fixed at the first guess, share text, backup round-trip and rejection of foreign files.
 - **Storage**: Dexie adapter on `fake-indexeddb`, including rollback of a failed unit of work.
 - **Words**: answers unique, five letters in game spelling, all allowed; common inflected forms allowed.
 - **i18n**: every text has German with the same placeholders, no unused German.
-- **UI**: Playwright on an iPhone profile (WebKit) and a Pixel profile (Chromium): invalid word, guess, resume after reload, win → statistics; physical keyboard, practice mode.
+- **UI**: Playwright on an iPhone profile (WebKit) and a Pixel profile (Chromium): invalid word, guess, resume after reload, win → statistics; physical keyboard.
 
 ---
 
@@ -357,7 +353,7 @@ npm run icons -w apps/pwa   # regenerate PNG icons from public/logo.svg
 
 1. **M1 Core** ✅ domain, services, ports, in-memory fakes, unit tests.
 2. **M2 Data** ✅ word-pack builder, words package, IndexedDB adapter.
-3. **M3 Play** ✅ board, keyboard, animations, daily and practice modes, resume.
+3. **M3 Play** ✅ board, keyboard, animations, daily word, resume (practice mode later dropped).
 4. **M4 Polish** ✅ statistics, share, settings, i18n, themes, high contrast, backup, install hint, icons.
 5. **M5 Devices**: test on a real iPhone (current and one older iOS) and a mid-range Android; deploy.
 

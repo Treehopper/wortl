@@ -1,10 +1,7 @@
-// German texts, informal "du" (README §8.4). Keys are the English wording.
+// German texts, informal "du" (README §8.4). Keys are the English wording; {title} is the game's name.
 export const de: Record<string, string> = {
   // game
   'Daily word': 'Tageswort',
-  'Practice': 'Übung',
-  'Mode': 'Modus',
-  'New word': 'Neues Wort',
   'Guesses': 'Versuche',
   'Keyboard': 'Tastatur',
   'Enter': 'Eingabe',
@@ -24,12 +21,9 @@ export const de: Record<string, string> = {
   'Good job!': 'Geschafft!',
   'Just made it!': 'Knapp!',
   'The word was': 'Das Wort war',
-  'Give up this word? It counts as lost.': 'Dieses Wort aufgeben? Es zählt als verloren.',
 
   // statistics
   'Statistics': 'Statistik',
-  'Statistics · daily word': 'Statistik · Tageswort',
-  'Statistics · practice': 'Statistik · Übung',
   'Solved in {n} of {max}': 'Gelöst mit {n} von {max} Versuchen',
   'Played': 'Gespielt',
   'Won': 'Gewonnen',
@@ -50,8 +44,7 @@ export const de: Record<string, string> = {
   'A is in the word but in another place.': 'A ist im Wort, aber an einer anderen Stelle.',
   'M is not in the word.': 'M kommt im Wort nicht vor.',
   'Ä, Ö and Ü are letters of their own. ß is written as SS.': 'Ä, Ö und Ü sind eigene Buchstaben. ß wird als SS geschrieben.',
-  'A new daily word appears every day at midnight. In practice mode you can play as often as you like.':
-    'Jeden Tag um Mitternacht gibt es ein neues Tageswort. Im Übungsmodus kannst du so oft spielen, wie du willst.',
+  'A new word appears every day at midnight.': 'Jeden Tag um Mitternacht gibt es ein neues Wort.',
   'Hard mode: letters you have found must be used in every later guess.':
     'Schwerer Modus: Gefundene Buchstaben müssen in jedem weiteren Versuch vorkommen.',
 
@@ -72,7 +65,6 @@ export const de: Record<string, string> = {
   'Paper, like the device': 'Papier, wie das Gerät',
   'Paper, light': 'Papier, hell',
   'Paper, dark': 'Papier, dunkel',
-  'App language': 'App-Sprache',
   'Backup': 'Sicherung',
   'Your games and statistics are stored only on this device. Save a backup before changing phones.':
     'Deine Spiele und Statistiken liegen nur auf diesem Gerät. Sichere sie, bevor du das Handy wechselst.',
@@ -81,15 +73,15 @@ export const de: Record<string, string> = {
   'Replace all games and statistics on this device with the backup?':
     'Alle Spiele und Statistiken auf diesem Gerät durch die Sicherung ersetzen?',
   'Backup restored': 'Sicherung wiederhergestellt',
-  'This is not a Wortl backup file': 'Das ist keine Wortl-Sicherung',
-  'About': 'Über Wortl',
+  'This is not a {title} backup file': 'Das ist keine {title}-Sicherung',
+  'About {title}': 'Über {title}',
   '{answers} daily words, {allowed} accepted words.': '{answers} Lösungswörter, {allowed} erlaubte Wörter.',
   'Word lists built from:': 'Die Wortlisten stammen aus:',
 
   // install
-  'Install Wortl: tap Share, then “Add to Home Screen”. Your streak is kept safely there.':
-    'Installiere Wortl: Tippe auf Teilen und dann auf „Zum Home-Bildschirm“. Dort bleibt deine Serie sicher gespeichert.',
-  'Install Wortl on your home screen to play offline and keep your streak safe.':
-    'Installiere Wortl auf dem Startbildschirm, um offline zu spielen und deine Serie sicher zu behalten.',
+  'Install {title}: tap Share, then “Add to Home Screen”. Your streak is kept safely there.':
+    'Installiere {title}: Tippe auf Teilen und dann auf „Zum Home-Bildschirm“. Dort bleibt deine Serie sicher gespeichert.',
+  'Install {title} on your home screen to play offline and keep your streak safe.':
+    'Installiere {title} auf dem Startbildschirm, um offline zu spielen und deine Serie sicher zu behalten.',
   'Install': 'Installieren',
 };

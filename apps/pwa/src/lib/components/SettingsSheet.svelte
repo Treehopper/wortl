@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Settings } from '@wortl/core';
   import { wordsDe } from '@wortl/words';
-  import { fmt, t } from '../i18n/index.js';
+  import { appTitle, fmt, t } from '../i18n/index.js';
   import Sheet from './Sheet.svelte';
 
   interface Props {
@@ -56,14 +56,6 @@
         <option value="dark">{t('Paper, dark')}</option>
       </select>
     </label>
-
-    <label class="setting">
-      <span class="label">{t('App language')}</span>
-      <select value={settings.uiLanguage} onchange={(e) => onchange({ uiLanguage: e.currentTarget.value as Settings['uiLanguage'] })}>
-        <option value="de">Deutsch</option>
-        <option value="en">English</option>
-      </select>
-    </label>
   </section>
 
   <section>
@@ -83,7 +75,7 @@
   </section>
 
   <section>
-    <h3>{t('About')}</h3>
+    <h3>{t('About {title}')}</h3>
     <p class="muted">
       {t('{answers} daily words, {allowed} accepted words.', { answers: wordsDe.answers.length, allowed: fmt(wordsDe.allowed.split(' ').length + wordsDe.answers.length) })}
       {t('Word lists built from:')}
@@ -93,7 +85,7 @@
         <li><a href={s.url} target="_blank" rel="noreferrer">{s.name}</a> ({s.licence})</li>
       {/each}
     </ul>
-    <p class="muted">Wortl {__APP_VERSION__}</p>
+    <p class="muted">{appTitle()} {__APP_VERSION__}</p>
   </section>
 </Sheet>
 

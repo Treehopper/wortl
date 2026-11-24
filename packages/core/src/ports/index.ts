@@ -7,7 +7,7 @@ export interface GameRepository {
   clear(): Promise<void>;
 }
 
-/** Small keyed values: settings, the current practice game. */
+/** Small keyed values: settings. */
 export interface MetaRepository {
   get<T>(key: string): Promise<T | undefined>;
   set<T>(key: string, value: T): Promise<void>;
@@ -36,7 +36,7 @@ export interface IdGenerator {
 
 export interface WordList {
   readonly length: number;
-  /** Daily and practice solutions, in daily order (§6). */
+  /** Daily solutions, in daily order (§6). */
   readonly answers: readonly string[];
   /** Whether a normalised word may be guessed (answers included). */
   isAllowed(word: string): boolean;
