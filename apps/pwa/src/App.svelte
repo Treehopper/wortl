@@ -305,7 +305,7 @@
     display: flex;
     flex-direction: column;
     height: 100dvh;
-    padding-top: env(safe-area-inset-top);
+    padding-top: calc(env(safe-area-inset-top) + 8px); /* clear of the blurred status bar on iOS */
     padding-bottom: calc(8px + env(safe-area-inset-bottom));
     box-sizing: border-box;
     max-width: 560px;
