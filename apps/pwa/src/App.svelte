@@ -8,6 +8,7 @@
   import Keyboard from './lib/components/Keyboard.svelte';
   import SettingsSheet from './lib/components/SettingsSheet.svelte';
   import StatsSheet from './lib/components/StatsSheet.svelte';
+  import ViewportDebug from './lib/components/ViewportDebug.svelte';
   import { confetti } from './lib/confetti.js';
   import { msg, setTitle, t } from './lib/i18n/index.js';
   import { applyUrlSettings, DEFAULT_TITLE, settingsFromUrl } from './lib/url-settings.js';
@@ -35,6 +36,17 @@
   let stats = $state<Stats>();
   let title = $state(DEFAULT_TITLE);
   let installPrompt = $state<InstallPromptEvent | null>(null);
+  let debug = $state(false);
+  let titleTaps: number[] = [];
+
+  function onTitleTap() {
+    const now = Date.now();
+    titleTaps = [...titleTaps.filter((t) => now - t < 2000), now];
+    if (titleTaps.length >= 5) {
+      titleTaps = [];
+      debug = !debug;
+    }
+  }
 
   const showInstallHint = $derived(
     settings !== undefined && !settings.installHintDismissed && !isStandalone() && (isIos() || installPrompt !== null),
@@ -255,7 +267,8 @@
       <button type="button" class="icon" onclick={() => (sheet = 'help')} aria-label={t('How to play')}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
       </button>
-      <h1 style:font-size={title.length > 9 ? '1.35rem' : null}>{title}</h1>
+      <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
+      <h1 style:font-size={title.length > 9 ? '1.35rem' : null} onclick={onTitleTap}>{title}</h1>
       <div class="right">
         <button type="button" class="icon" onclick={openStats} aria-label={t('Statistics')}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z"/></svg>
@@ -312,6 +325,7 @@
       onclose={() => (sheet = null)}
     />
   {/if}
+{#if debug}<ViewportDebug onclose={() => (debug = false)} />{/if}
 {/key}
 
 <style>
@@ -337,6 +351,8 @@
   .right { justify-self: end; display: flex; }
   h1 {
     margin: 0;
+    -webkit-user-select: none;
+    user-select: none;
     font: 900 1.9rem/1.15 var(--font-title);
     letter-spacing: 0.02em;
     text-align: center;
