@@ -167,13 +167,13 @@ type GuessError = { kind: 'finished' } | { kind: 'tooShort' } | { kind: 'notInLi
 
 ```ts
 type Mark = 'correct' | 'present' | 'absent';
-type Mode = 'daily' | 'practice';  // only daily is played; 'practice' games from earlier versions are ignored
+type Mode = 'daily' | 'practice';  // practice: an extra game with a random word, not counted
 
 interface Game {
-  id: string;              // `daily-2026-11-23`
+  id: string;              // daily: `daily-2026-11-23`; practice: random UUID
   mode: Mode;
-  date?: LocalDate;        // `YYYY-MM-DD` in the player's time zone
-  number?: number;         // puzzle number
+  date?: LocalDate;        // daily only, `YYYY-MM-DD` in the player's time zone
+  number?: number;         // daily only: puzzle number
   solution: string;        // game spelling (§6)
   guesses: string[];
   hard: boolean;           // fixed by the first guess

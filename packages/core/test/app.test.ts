@@ -67,6 +67,20 @@ describe('hard mode (A10)', () => {
   });
 });
 
+describe('random word', () => {
+  it('never picks the daily word and is not counted', async () => {
+    for (let i = 0; i < 20; i++) {
+      const r = await app.games.random();
+      expect(r.number).toBeUndefined();
+      expect((await ports.games.get(r.id))!.solution).not.toBe('katze');
+    }
+    const r = await app.games.random();
+    await app.games.guess(r.id, (await ports.games.get(r.id))!.solution);
+    expect(await app.stats.get()).toMatchObject({ played: 0 });
+    expect((await app.games.share(r.id)).split('\n')[0]).toBe('Wortl (Zufallswort) 1/6');
+  });
+});
+
 describe('share (B2)', () => {
   it('shows circles, not letters', async () => {
     const g = await app.games.daily();
@@ -90,7 +104,7 @@ describe('settings', () => {
 });
 
 describe('statistics', () => {
-  it('ignores practice games from earlier versions', async () => {
+  it('ignores practice games', async () => {
     await ports.games.save({
       id: 'p1', mode: 'practice', solution: 'tasse', guesses: ['tasse'], hard: false, state: 'won',
       startedAt: '2026-11-23T08:00:00Z', finishedAt: '2026-11-23T08:01:00Z',

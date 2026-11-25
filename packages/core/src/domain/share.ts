@@ -15,5 +15,6 @@ export function shareText(game: Game, opts: { palette: SharePalette; title?: str
   const name = opts.title || 'Wortl';
   const score = game.state === 'won' ? String(game.guesses.length) : 'X';
   const rows = game.guesses.map((g) => evaluate(g, game.solution).map((m) => emoji[m]).join(''));
-  return [`${name} #${game.number} ${score}/${MAX_GUESSES}${game.hard ? '*' : ''}`, '', ...rows, ...(opts.url ? ['', opts.url] : [])].join('\n');
+  const title = game.mode === 'daily' ? `${name} #${game.number}` : `${name} (Zufallswort)`;
+  return [`${title} ${score}/${MAX_GUESSES}${game.hard ? '*' : ''}`, '', ...rows, ...(opts.url ? ['', opts.url] : [])].join('\n');
 }

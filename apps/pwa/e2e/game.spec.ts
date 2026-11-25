@@ -38,6 +38,12 @@ test('plays the daily word: invalid word, guess, resume after reload, win', asyn
   await expect(stats).toBeVisible({ timeout: 8000 });
   await expect(stats.getByText('Gelöst mit 2 von 6 Versuchen')).toBeVisible();
   await expect(stats.getByRole('button', { name: 'Teilen' })).toBeVisible();
+
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page.keyboard.type('again'); // cheat code: a random word after the daily one
+  await expect(page.getByText('Zufallswort', { exact: true }).first()).toBeVisible();
+  await expect(page.getByRole('row').first().getByRole('gridcell').first()).toHaveText('');
 });
 
 test('physical keyboard', async ({ page }) => {

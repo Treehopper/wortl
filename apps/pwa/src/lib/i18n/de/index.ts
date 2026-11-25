@@ -2,6 +2,7 @@
 export const de: Record<string, string> = {
   // game
   'Daily word': 'Tageswort',
+  'Random word': 'Zufallswort',
   'Guesses': 'Versuche',
   'Keyboard': 'Tastatur',
   'Enter': 'Eingabe',

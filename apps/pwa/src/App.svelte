@@ -66,6 +66,12 @@
     keys = v.keys;
     revealRow = -1;
     bounceRow = -1;
+    typedAfterGame = '';
+  }
+
+  async function playRandom() {
+    show(await app.games.random());
+    say(t('Random word'));
   }
 
   function say(text: string, ms = 1800) {
@@ -125,8 +131,16 @@
   // Not `sheet`: after Escape the dialog is closed a moment before its close event clears `sheet`.
   const dialogOpen = () => document.querySelector('dialog[open]') !== null;
 
+  // Undocumented cheat code: typing AGAIN after a finished game starts one with a random word.
+  let typedAfterGame = '';
+
   function onkey(key: string) {
-    if (busy || dialogOpen() || !view || view.state !== 'playing') return;
+    if (busy || dialogOpen() || !view) return;
+    if (view.state !== 'playing') {
+      typedAfterGame = (typedAfterGame + key).slice(-5);
+      if (typedAfterGame === 'again') void playRandom();
+      return;
+    }
     if (key === 'enter') void submit();
     else if (key === 'back') current = current.slice(0, -1);
     else if (current.length < view.length) current = [...current, key];
@@ -200,7 +214,7 @@
   }
 
   async function onVisible() {
-    if (document.visibilityState !== 'visible' || busy || !view) return;
+    if (document.visibilityState !== 'visible' || busy || !view?.number) return; // a random game stays
     const today = await app.games.daily();
     if (today.id !== view.id) show(today); // the date changed while the app was in the background
   }
@@ -252,8 +266,8 @@
       </div>
     </header>
 
-    {#if view?.number}
-      <p class="number">{t('Daily word')} #{view.number}</p>
+    {#if view}
+      <p class="number">{view.number ? `${t('Daily word')} #${view.number}` : t('Random word')}</p>
     {/if}
 
     {#if showInstallHint}

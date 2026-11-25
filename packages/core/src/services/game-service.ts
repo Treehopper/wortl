@@ -1,6 +1,6 @@
 import { dailySolution, dayNumber } from '../domain/daily.js';
 import { evaluate, hardModeViolation, keyboardMarks, letters, type HardModeViolation } from '../domain/evaluate.js';
-import { MAX_GUESSES, type Game, type GameId, type GameState, type Mark } from '../domain/types.js';
+import { MAX_GUESSES, type Game, type GameId, type GameState, type Mark, type Mode } from '../domain/types.js';
 import type { Ports } from '../ports/index.js';
 import type { SettingsService } from './settings-service.js';
 
@@ -48,11 +48,11 @@ export class GameService {
     return toView(game, this.p.words.length);
   }
 
-  private async newGame(solution: string, extra: Partial<Game> = {}): Promise<Game> {
+  private async newGame(mode: Mode, solution: string, extra: Partial<Game> = {}): Promise<Game> {
     const { hardMode } = await this.settings.get();
     return {
       id: this.p.ids.next(),
-      mode: 'daily',
+      mode,
       solution,
       guesses: [],
       hard: hardMode,
@@ -70,9 +70,23 @@ export class GameService {
       let game = await this.p.games.get(id);
       if (!game) {
         const number = dayNumber(date);
-        game = await this.newGame(dailySolution(this.p.words.answers, number), { id, date, number });
+        game = await this.newGame('daily', dailySolution(this.p.words.answers, number), { id, date, number });
         await this.p.games.save(game);
       }
+      return this.view(game);
+    });
+  }
+
+  /** An extra game with a random word other than today's; not counted in the statistics. */
+  random(): Promise<GameView> {
+    return this.p.uow.run(async () => {
+      const { answers } = this.p.words;
+      const today = dailySolution(answers, dayNumber(this.p.clock.today()));
+      let solution: string;
+      do solution = answers[Math.floor(this.p.random.next() * answers.length)]!;
+      while (solution === today && answers.length > 1);
+      const game = await this.newGame('practice', solution);
+      await this.p.games.save(game);
       return this.view(game);
     });
   }

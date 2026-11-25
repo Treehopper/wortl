@@ -16,6 +16,7 @@ export interface BackupV1 {
 export interface WortlApp {
   games: {
     daily(): Promise<GameView>;
+    random(): Promise<GameView>;
     get(id: GameId): Promise<GameView | undefined>;
     guess(id: GameId, word: string): Promise<GuessResult>;
     share(id: GameId, url?: string): Promise<string>;
@@ -34,6 +35,7 @@ export function createApp(p: Ports): WortlApp {
   return {
     games: {
       daily: () => games.daily(),
+      random: () => games.random(),
       get: (id) => games.get(id),
       guess: (id, word) => games.guess(id, word),
       async share(id, url) {

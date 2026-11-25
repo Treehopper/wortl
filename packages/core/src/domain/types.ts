@@ -1,5 +1,5 @@
 export type Mark = 'correct' | 'present' | 'absent';
-/** Only daily games are played; `practice` occurs in games saved by earlier versions and is ignored. */
+/** `practice`: an extra game with a random word; not counted in the statistics. */
 export type Mode = 'daily' | 'practice';
 export type GameId = string;
 export type GameState = 'playing' | 'won' | 'lost';
@@ -10,10 +10,10 @@ export type LocalDate = string;
 export type Timestamp = string;
 
 export interface Game {
-  id: GameId; // `daily-<date>`
+  id: GameId; // daily: `daily-<date>`; practice: generated
   mode: Mode;
-  date?: LocalDate;
-  number?: number; // "Wortl #12"
+  date?: LocalDate; // daily only
+  number?: number; // daily only: "Wortl #12"
   solution: string;
   guesses: string[];
   hard: boolean; // fixed by the first guess (A10)
