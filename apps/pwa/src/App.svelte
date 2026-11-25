@@ -318,13 +318,10 @@
   .app {
     display: flex;
     flex-direction: column;
-    /* Pinned to the top, not 100dvh: in an iOS home-screen app with a translucent status bar, 100dvh (and at
-       times the viewport itself) is short by the status bar's height; --app-height is then the screen's (main.ts). */
+    /* Pinned to the screen edges, not 100dvh: in an iOS home-screen app with a translucent status bar,
+       100dvh is short by the status bar's height and leaves a gap below the keyboard. */
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: var(--app-height, 100%);
+    inset: 0;
     padding-top: calc(env(safe-area-inset-top) + 14px); /* clear of the blurred status bar on iOS */
     padding-bottom: calc(8px + env(safe-area-inset-bottom));
     box-sizing: border-box;
